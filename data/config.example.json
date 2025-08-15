@@ -1,0 +1,86 @@
+{
+  "defaultModels": {
+    "ANALYSIS": "claude-3-7-sonnet-latest",
+    "DESIGN": "claude-3-5-sonnet-latest",
+    "QUERY": "claude-3-5-sonnet-latest",
+    "INTEGRATION": "claude-3-7-sonnet-latest"
+  },
+  "providers": [
+    {
+      "provider": "anthropic",
+      "models": [
+        {
+          "model": "claude-3-7-sonnet-latest",
+          "title": "Claude 3.7 Sonnet",
+          "baseURL": "https://api.302.ai/v1",
+          "features": ["reasoning"],
+          "apiKey": "your-anthropic-api-key-here"
+        },
+        {
+          "model": "claude-3-5-sonnet-latest",
+          "title": "Claude 3.5 Sonnet",
+          "baseURL": "https://api.302.ai/v1",
+          "features": ["creativity", "reasoning"],
+          "apiKey": "your-anthropic-api-key-here"
+        },
+        {
+          "model": "claude-3-haiku-latest",
+          "title": "Claude 3 Haiku",
+          "baseURL": "https://api.302.ai/v1",
+          "features": ["creativity"],
+          "apiKey": "your-anthropic-api-key-here"
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "models": [
+        {
+          "model": "gpt-4o",
+          "title": "GPT-4o",
+          "baseURL": "https://api.openai.com/v1",
+          "features": ["vision", "reasoning", "creativity"],
+          "apiKey": "your-openai-api-key-here"
+        },
+        {
+          "model": "gpt-4o-mini",
+          "title": "GPT-4o Mini",
+          "baseURL": "https://api.openai.com/v1",
+          "features": ["vision", "creativity"],
+          "apiKey": "your-openai-api-key-here"
+        }
+      ]
+    },
+    {
+      "provider": "deepseek",
+      "models": [
+        {
+          "model": "deepseek-chat",
+          "title": "DeepSeek Chat",
+          "baseURL": "https://api.deepseek.com",
+          "features": ["reasoning", "creativity"],
+          "apiKey": "your-deepseek-api-key-here"
+        }
+      ]
+    },
+    {
+      "provider": "ollama",
+      "models": [
+        {
+          "model": "llama3.2",
+          "title": "Llama 3.2",
+          "baseURL": "http://localhost:11434",
+          "features": ["creativity"],
+          "apiKey": ""
+        },
+        {
+          "model": "qwen2.5",
+          "title": "Qwen 2.5",
+          "baseURL": "http://localhost:11434",
+          "features": ["creativity"],
+          "apiKey": ""
+        }
+      ]
+    }
+  ]
+}

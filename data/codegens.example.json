@@ -1,0 +1,1018 @@
+[
+  {
+    "title": "Private Component Codegen",
+    "description": "Code generator based on private components",
+    "fullStack": "Vue",
+    "guides": [
+      "Generate a login page",
+      "Generate a Table component, include 3 columns: name, age, address"
+    ],
+    "model": "gpt-4o",
+    "codeRendererUrl": "http://localhost:3005",
+    "rules": [
+      {
+        "type": "styles",
+        "description": "Define the rules for generating styles",
+        "prompt": "Use less for styles"
+      },
+      {
+        "type": "file-structure",
+        "description": "Define the file structure for the project",
+        "prompt": "Output component code in XML format as follows: <ComponentArtifact name=\"ComponentName\"><ComponentFile fileName=\"App.vue\" isEntryFile=\"true\"><template>\n  <!-- Write template content here -->\n</template>\n\n<script setup lang=\"ts\">\n// Import required components and dependencies\nimport { ref, reactive, computed, onMounted, onUnmounted } from 'vue'\nimport type { PropType } from 'vue'\n\n// Define props interface\ninterface Props {\n  propName?: string | number | boolean\n  // Add other prop types\n}\n\nconst props = withDefaults(defineProps<Props>(), {\n  // IMPORTANT: Every prop MUST include a default value\n  propName: 'defaultValue'\n})\n\n// Define emits\nconst emit = defineEmits<{\n  'update:modelValue': [value: any]\n  'change': [value: any]\n}>()\n\n// Reactive data\nconst state = reactive({\n  // Component state\n})\n\nconst count = ref(0)\n\n// Computed properties\nconst computedValue = computed(() => {\n  // Computed logic\n  return state.someValue\n})\n\n// Methods\nconst handleClick = () => {\n  // Method logic\n  emit('change', 'value')\n}\n\n// Lifecycle hooks\nonMounted(() => {\n  // Component mounted\n})\n\nonUnmounted(() => {\n  // Component unmounted\n})\n</script>\n\n<style scoped>\n/* Component styles */\n/* IMPORTANT: Do NOT use @apply in styles. Write CSS rules directly. */\n</style></ComponentFile></ComponentArtifact>\n\nIMPORTANT RULES:\n1. Every prop MUST include a default value\n2. Do NOT use @apply in styles. Write CSS rules directly.\n3. Use <script setup> with TypeScript for better type safety\n4. Define emits for all custom events\n5. Use ref() for primitive values and reactive() for objects"
+      },
+      {
+        "type": "attention-rules",
+        "description": "Attention rules for the code generator",
+        "prompt": "Only use the following npm packages in the generated code: @private-basic-components, ant-design-vue. Do not import or use any other packages.你应该首选使用 @private-basic-components，如果没有合适的组件再考虑使用ant-design-vue。"
+      },
+      {
+        "type": "private-components",
+        "description": "Define which private components to use",
+        "docs": {
+          "das-action-more": {
+            "purpose": "Dropdown menu for secondary actions to save space",
+            "usage": "Collapse multiple action buttons into a dropdown",
+            "demo": {
+              "basic": {
+                "desc": "Basic dropdown with edit/delete/share actions",
+                "code": "<das-action-more :items=\"[{key:'edit',label:'编辑'},{key:'delete',label:'删除',danger:true}]\" @click=\"handleClick\" />"
+              }
+            },
+            "props": {
+              "items": "ItemType[] - Menu items array",
+              "click": "(info: MenuInfo) => void - Click handler"
+            },
+            "item-schema": {
+              "key": "string* - Unique identifier",
+              "label": "string* - Display text",
+              "icon": "VNode - Optional icon",
+              "disabled": "boolean - Disable state",
+              "danger": "boolean - Danger style",
+              "children": "ItemType[] - Submenu items",
+              "type": "'divider'|'group' - Special types"
+            },
+            "tips": [
+              "Use unique keys for each item",
+              "Mark dangerous actions with danger:true",
+              "Group related actions with dividers",
+              "Keep frequently used actions outside dropdown"
+            ]
+          },
+          "das-alert": {
+            "purpose": "Alert component for displaying system messages and notifications",
+            "usage": [
+              "Operation feedback",
+              "System announcements",
+              "Security alerts"
+            ],
+            "example": "<das-alert message=\"Operation successful\" type=\"success\" />\n<das-alert message=\"Information tip\" type=\"info\" />\n<das-alert message=\"Warning message\" type=\"warning\" />\n<das-alert message=\"Error message\" type=\"error\" />",
+            "api": {
+              "type": "string - Alert type: success|info|warning|error|common, default common",
+              "message": "string - Alert content",
+              "title": "string - Title (banner mode)",
+              "closable": "boolean - Show close button, default true",
+              "showIcon": "boolean - Show icon, default true",
+              "size": "string - Size: small|default, default default",
+              "banner": "boolean - Banner mode, default false",
+              "maxLineNumber": "number - Maximum line number",
+              "expand": "boolean - Expandable, default false",
+              "float": "boolean - Float form, default false",
+              "dataSource": "AlertData[] - Carousel data source"
+            },
+            "types": {
+              "AlertData": "{ title: string, message: string, type: string, expand: boolean, maxLineNumber: number }"
+            },
+            "events": {
+              "close": "() => void - Triggered when closed"
+            },
+            "slots": {
+              "action": "Custom action button (banner mode)"
+            },
+            "notes": {
+              "position": "Place above relevant sections",
+              "text": "Description within 2 lines, maximum 5 lines",
+              "quantity": "Maximum 1 alert per page",
+              "actions": "Maximum 3 action buttons",
+              "persistence": "Remain visible until issue is resolved"
+            }
+          },
+          "das-all-select": {
+            "usage": [
+              "Multi-select dropdown scenarios",
+              "Select all functionality required"
+            ],
+            "example": "<das-all-select v-model:value=\"value\" mode=\"multiple\" :options=\"options\" />",
+            "api": {
+              "list": "Array - Options list passed to component, default options",
+              "attrKey": "Function - Value attribute accessor, default (item) => item.value",
+              "attrLabel": "Function - Label attribute accessor, default (item) => item.label",
+              "isMultipleAll": "boolean - Enable select all in multi-select mode, default true",
+              "isAutoResize": "boolean - Auto resize tag display based on dropdown size, default true"
+            },
+            "slots": {
+              "moreTagList": "Hidden data list for tooltip display, recommend virtual list (hideData)"
+            },
+            "notes": {
+              "performance": "Use virtual list in moreTagList slot when selected data is excessive",
+              "responsive": "Component auto-adapts tag display to container size for responsive layouts",
+              "selectAll": "Keep isMultipleAll enabled for better user experience with large datasets",
+              "autoResize": "Enable isAutoResize to dynamically truncate tag display in space-constrained scenarios"
+            }
+          },
+          "das-button-organizer": {
+            "usage": "Auto-collapse excess buttons into dropdown menu when space is limited",
+            "example": "<das-button-organizer :data-source=\"list\" @on-action=\"handleAction\" />\n// list: [{ value: 'sync', label: 'Sync' }, { value: 'edit', label: 'Edit' }]",
+            "api": {
+              "dataSource": "object[] - Button list data (required)",
+              "tag": "number = 3 - Number of visible buttons",
+              "disableRules": "object[] - Disable rules for buttons",
+              "iconColor": "string = '#1677ff' - Button color"
+            },
+            "types": {
+              "DataSource": "{ value: string, label: string }",
+              "DisableRules": "{ value: string, title?: string }"
+            },
+            "events": {
+              "on-action": "(value: string) - Button click callback"
+            },
+            "slots": {
+              "icon": "Custom more button icon",
+              "[value]": "Custom button content by value"
+            },
+            "notes": "Shows first N buttons directly, excess buttons collapse to dropdown. Supports disable rules and custom styling."
+          },
+          "das-carousel": {
+            "usage": "Scrolling carousel for text, images, or other content with customizable speed and container size",
+            "example": "<das-carousel :height=\"20\" :width=\"300\" :speed=\"1.5\">\n  <p>Scrolling text content...</p>\n</das-carousel>",
+            "api": {
+              "width": "number, default: 400 - Container width in pixels",
+              "height": "number, default: 50 - Container height in pixels",
+              "speed": "number, default: 1 - Scrolling speed (higher = faster)"
+            },
+            "slots": {
+              "default": "Scrolling content (text, images, or other elements)"
+            },
+            "notes": "Seamless infinite scrolling with auto-adapting content. Supports text, images, and custom elements. Consider performance for complex content."
+          },
+          "das-columns-setting": {
+            "purpose": "Table column visibility control component with dropdown selection and dynamic toggling",
+            "usage": ["Table column display control"],
+            "example": {
+              "basic": {
+                "description": "Basic column control functionality",
+                "code": "<template>\n  <DasColumnsSetting v-model=\"selectedColumns\" :columns=\"columnConfig\" />\n</template>\n\n<script setup>\nimport { ref } from 'vue'\n\nconst columnConfig = [\n  { name: 'Task Name', value: 'taskName', show: 'all' },\n  { name: 'Template', value: 'template', show: 'all' },\n  { name: 'Data Source', value: 'dataSource', show: 'all' },\n  { name: 'Host', value: 'host', show: undefined },\n  { name: 'Asset Stats', value: 'assetStats', show: 'dataTagging' },\n  { name: 'Cycle', value: 'cycle', show: false },\n  { name: 'Actions', value: 'actions', show: 'all' }\n]\n\nconst selectedColumns = ref(['taskName', 'template', 'host', 'actions'])\n</script>"
+              }
+            },
+            "props": {
+              "columns": {
+                "type": "ColumnItem[]",
+                "required": true,
+                "description": "Column configuration array"
+              },
+              "modelValue": {
+                "type": "string[]",
+                "required": true,
+                "description": "Selected column values array"
+              }
+            },
+            "types": {
+              "ColumnItem": {
+                "name": "string // Column display name",
+                "value": "string // Column unique identifier",
+                "show": "string | boolean | undefined // Display condition"
+              }
+            },
+            "notes": [
+              "Built on ant-design-vue Dropdown and Checkbox",
+              "Supports conditional display control",
+              "Two-way data binding",
+              "Real-time table column state updates"
+            ]
+          },
+          "das-count-to": {
+            "purpose": "Number scrolling animation component for enhanced data visualization",
+            "usage": "Data dashboards, real-time metrics, and dynamic statistics display",
+            "demo": {
+              "basic": {
+                "desc": "Number scrolls from 0 to target value with customizable styles and formatting",
+                "code": "<das-count-to :end=\"200000000.12\" :size=\"40\" :duration=\"2000\" />"
+              }
+            },
+            "props": {
+              "start": "number - Starting value, default 0",
+              "end": "number* - Target value",
+              "duration": "number - Animation duration(ms), default 2000",
+              "separator": "string - Thousands separator, default ','",
+              "decimal": "number - Decimal places, default 0",
+              "size": "number - Font size(px), default 16",
+              "weight": "number - Font weight, default 400",
+              "prefix": "string|slot - Prefix content",
+              "suffix": "string|slot - Suffix content",
+              "unitSize": "number - Unit font size(px), default 16"
+            },
+            "tips": [
+              "Use decimal to control number precision",
+              "Adjust duration for optimal scroll experience",
+              "Separator improves large number readability",
+              "Prefix/suffix support slot customization",
+              "Perfect for dashboards and real-time monitoring"
+            ]
+          },
+          "das-detail": {
+            "purpose": "Display structured detail information with multi-level data support",
+            "usage": "Show user profiles, order details, system configurations in organized layouts",
+            "demo": {
+              "basic": {
+                "desc": "Multi-level detail display with custom slots",
+                "code": "<das-detail type=\"card\" title=\"多级标题\" :items=\"items\" :multiple=\"true\" :detail-data=\"data\" :column=\"2\">\n  <template #label_custom=\"{ item }\">{{ item.label }} <QuestionCircleOutlined /></template>\n  <template #content_custom=\"{ data }\"><Tag color=\"success\">测试</Tag></template>\n</das-detail>"
+              }
+            },
+            "props": {
+              "type": "'default'|'card' - Display style, default default",
+              "title": "string - Card title",
+              "layout": "'horizontal'|'vertical' - Layout direction, default horizontal",
+              "multiple": "boolean - Enable multi-level titles, default false",
+              "detailData": "Record<string,any>* - Data source object",
+              "items": "DetailItem[]* - Configuration array",
+              "column": "number - Columns per row, default 3",
+              "colon": "boolean - Show colon after label, default true",
+              "labelWidth": "number|string - Label width"
+            },
+            "item-schema": {
+              "title": "string - Group title",
+              "label": "string - Item label",
+              "key": "string|string[] - Data key path",
+              "span": "number - Column span, default 1",
+              "expandable": "boolean - Enable expand/collapse, default false",
+              "expandRow": "number - Default rows to show, default 4",
+              "children": "DetailItem[] - Child items"
+            },
+            "slots": {
+              "title": "Custom card title",
+              "extra": "Custom extra content",
+              "label_[key]": "Custom label content - scope: { item: DetailItem }",
+              "content_[key]": "Custom item content - scope: { item: DetailItem, data: Record<string,any> }"
+            },
+            "tips": [
+              "Use 'card' type for better visual separation",
+              "Enable multiple for hierarchical data display",
+              "Customize labels and content with named slots",
+              "Set expandable for long text management"
+            ]
+          },
+          "das-drawer": {
+            "purpose": "Slide-out panel for displaying additional content without leaving current page",
+            "usage": "Show forms, details, settings, or supplementary information in overlay panels",
+            "demo": {
+              "basic": {
+                "desc": "Basic drawer with title and content",
+                "code": "<das-drawer v-model=\"visible\" title=\"Basic Drawer\">\n  <p>Drawer content</p>\n</das-drawer>"
+              },
+              "theme": {
+                "desc": "Light and dark theme support",
+                "code": "<das-drawer v-model=\"visible\" title=\"Theme Drawer\" theme=\"dark\">\n  <p>Dark theme content</p>\n</das-drawer>"
+              }
+            },
+            "props": {
+              "modelValue": "boolean - Show/hide drawer, default false",
+              "width": "string|number - Drawer width (overrides size), default 480",
+              "size": "'large'|'medium'|'small'|'mini' - Size preset, default mini",
+              "title": "string - Drawer title",
+              "theme": "'light'|'dark' - Theme style, default light",
+              "mask": "boolean - Show mask overlay, default true",
+              "maskClosable": "boolean - Close on mask click, default true",
+              "closable": "boolean - Show close button, default true",
+              "zIndex": "number - Z-index level, default 1000",
+              "outer": "boolean - Outer drawer for nesting, default false"
+            },
+            "events": {
+              "update:modelValue": "(value: boolean) => void - Visibility change",
+              "close": "() => void - Close event trigger"
+            },
+            "slots": {
+              "default": "Drawer content",
+              "footer": "Footer content area"
+            },
+            "tips": [
+              "Width property overrides size preset",
+              "Set outer=true for nested drawers",
+              "Minimum width is 480px regardless of size",
+              "Use zIndex to control stacking order",
+              "Size presets: large(80%), medium(60%), small(40%), mini(20%)"
+            ]
+          },
+          "das-empty": {
+            "purpose": "Empty state component for displaying when no data is available",
+            "usage": "Data tables, search results, error pages, and initial states",
+            "demo": {
+              "basic": {
+                "desc": "Basic empty state with default configuration",
+                "code": "<das-empty />"
+              },
+              "sizes": {
+                "desc": "Three size variants for different contexts",
+                "code": "<das-empty size=\"large\" type=\"search\" />\n<das-empty size=\"medium\" />\n<das-empty size=\"small\" />"
+              },
+              "types": {
+                "desc": "Predefined error and empty state types",
+                "code": "<das-empty type=\"404\" />\n<das-empty type=\"500\" />\n<das-empty type=\"search\" />\n<das-empty type=\"charts\" />"
+              },
+              "custom": {
+                "desc": "Custom content with action buttons",
+                "code": "<das-empty title=\"No Data\" text=\"Click to create\">\n  <a-button type=\"primary\">Create Now</a-button>\n</das-empty>"
+              }
+            },
+            "props": {
+              "text": "string - Description text",
+              "image": "string - Custom image URL",
+              "size": "'large'|'medium'|'small' - Size variant, default medium",
+              "type": "'default'|'search'|'charts'|'400'|'403'|'404'|'500'|'503' - Predefined type, default default",
+              "title": "string - Title text (hidden in small size), default '提示'",
+              "showTitle": "boolean - Show title, default true",
+              "imageUrl": "string - Image URL (alias for image)"
+            },
+            "slots": {
+              "default": "Custom bottom content (action buttons)"
+            },
+            "tips": [
+              "Use large size for page-level empty states",
+              "Medium size for tables, drawers, and modals",
+              "Small size for cards and limited spaces",
+              "Title is hidden in small size mode",
+              "Choose appropriate type for context (search, charts, errors)",
+              "Add meaningful action buttons via default slot"
+            ]
+          },
+          "das-form": {
+            "purpose": "Form component for collecting user input with validation and layout support",
+            "usage": "Registration forms, configuration forms, data entry, and user input collection",
+            "demo": {
+              "basic": {
+                "desc": "Basic form with validation and various input types",
+                "code": "<das-form :model=\"formState\" :rules=\"rules\" @finish=\"onFinish\">\n  <das-form-item label=\"Name\" name=\"name\" required>\n    <a-input v-model:value=\"formState.name\" />\n  </das-form-item>\n  <das-form-item label=\"Level\" name=\"level\">\n    <a-radio-group v-model:value=\"formState.level\">\n      <a-radio value=\"high\">High</a-radio>\n      <a-radio value=\"medium\">Medium</a-radio>\n    </a-radio-group>\n  </das-form-item>\n  <das-form-item>\n    <a-button type=\"primary\" html-type=\"submit\">Submit</a-button>\n  </das-form-item>\n</das-form>"
+              },
+              "layout": {
+                "desc": "Different layout options for forms",
+                "code": "<das-form layout=\"inline\">\n  <das-form-item label=\"Search\" name=\"search\">\n    <a-input v-model:value=\"searchValue\" />\n  </das-form-item>\n  <das-form-item>\n    <a-button type=\"primary\">Search</a-button>\n  </das-form-item>\n</das-form>"
+              },
+              "group": {
+                "desc": "Form groups for organizing complex forms",
+                "code": "<das-form-group title=\"Basic Info\" card>\n  <das-form-item label=\"Name\" name=\"name\">\n    <a-input v-model:value=\"formState.name\" />\n  </das-form-item>\n</das-form-group>"
+              }
+            },
+            "props": {
+              "model": "object - Form data object",
+              "rules": "object - Validation rules",
+              "layout": "'horizontal'|'vertical'|'inline'|'inline-vertical' - Layout style, default horizontal",
+              "labelCol": "object - Label column layout",
+              "wrapperCol": "object - Wrapper column layout",
+              "colon": "boolean - Show colon after label, default false",
+              "inlineLabelWidth": "string - Inline layout label width, default '120px'",
+              "inlineColumns": "number - Inline layout columns, default 3",
+              "labelAlign": "'left'|'right' - Label alignment, default right",
+              "showAnchor": "boolean - Show navigation anchors, default false",
+              "anchors": "Array<{id:string,title:string}> - Anchor configuration",
+              "anchorPosition": "'left'|'right' - Anchor position, default right"
+            },
+            "form-item": {
+              "label": "string|slot - Label text",
+              "name": "string|number|array - Field name",
+              "rules": "Rule[] - Validation rules",
+              "required": "boolean - Required field, default false",
+              "col": "number - Column span in inline layout, default 1",
+              "tooltip": "string|slot - Label tooltip",
+              "extra": "string|slot - Extra help text",
+              "extraBordered": "boolean - Show border for extra text, default false",
+              "depends": "FormDependency - Field dependency config"
+            },
+            "form-group": {
+              "id": "string - Group identifier for anchors",
+              "title": "string|slot - Group title",
+              "description": "string|slot - Group description",
+              "descriptionMode": "'text'|'tooltip' - Description display mode, default text",
+              "card": "boolean - Use card style, default false",
+              "collapsible": "boolean - Collapsible group, default false",
+              "defaultExpanded": "boolean - Default expanded state, default true"
+            },
+            "form-list": {
+              "type": "'card'|'table' - List display type, default card",
+              "name": "string - List field name",
+              "value": "Array<any> - List data, default []",
+              "min": "number - Minimum items, default 0",
+              "max": "number - Maximum items, default Infinity",
+              "columns": "Array<{title:string,key:string,width?:number,align?:string}> - Table columns config"
+            },
+            "events": {
+              "finish": "(values: any) => void - Form submission success",
+              "finish-failed": "(error: {values, errorFields, outOfDate}) => void - Form submission failed",
+              "validate": "(name: string, status: string, errorMsgs: string[]) => void - Field validation"
+            },
+            "methods": {
+              "validate": "(nameList?: string[]) => Promise - Trigger form validation",
+              "validateFields": "(nameList: string[]) => Promise - Validate specific fields",
+              "resetFields": "(nameList?: string[]) => void - Reset form data",
+              "clearValidate": "(nameList?: string[]) => void - Clear validation results",
+              "scrollToField": "(name: string|number|array, options?: object) => void - Scroll to field"
+            },
+            "tips": [
+              "Use inline layout for search forms, horizontal for edit forms, vertical for mobile",
+              "Group related fields with das-form-group for better organization",
+              "Set labelAlign to 'right' for consistent visual alignment",
+              "Use anchors for long forms with showAnchor and anchors props",
+              "Configure field dependencies with depends prop for conditional display",
+              "Use das-form-list for dynamic form arrays with min/max constraints"
+            ]
+          },
+          "das-helper-text": {
+            "purpose": "Helper text component for displaying help information with different emphasis levels",
+            "usage": "Form field descriptions, operation instructions, and contextual help text",
+            "demo": {
+              "basic": {
+                "desc": "Three emphasis variants for different importance levels",
+                "code": "<das-helper-text variant=\"strong\">Important warning message</das-helper-text>\n<das-helper-text variant=\"medium\">Standard help information</das-helper-text>\n<das-helper-text variant=\"weak\">Supplementary note</das-helper-text>"
+              },
+              "form": {
+                "desc": "Form field help text with input guidance",
+                "code": "<a-form-item label=\"Email\">\n  <a-input v-model:value=\"email\" />\n  <das-helper-text variant=\"medium\">\n    Please enter a valid email address\n  </das-helper-text>\n</a-form-item>"
+              },
+              "rich": {
+                "desc": "Rich text content with HTML support",
+                "code": "<das-helper-text variant=\"medium\">\n  See <a href=\"#\">documentation</a> for more details\n</das-helper-text>"
+              }
+            },
+            "props": {
+              "variant": "'strong'|'medium'|'weak' - Emphasis level, default medium"
+            },
+            "slots": {
+              "default": "Helper text content (supports HTML)"
+            },
+            "tips": [
+              "Use 'strong' for important warnings and critical information",
+              "Use 'medium' for standard help text and instructions",
+              "Use 'weak' for supplementary notes and optional information",
+              "Place below form fields for better user experience",
+              "Support HTML tags for rich content formatting"
+            ]
+          },
+          "das-metric-card": {
+            "purpose": "Metric card component for displaying key data indicators with flexible layouts",
+            "usage": "Dashboard statistics, KPI displays, and data visualization cards",
+            "demo": {
+              "basic": {
+                "desc": "Basic metric card with title, value, and suffix",
+                "code": "<das-metric-card title=\"Total Users\" value=\"1024\" suffix=\"users\" />"
+              },
+              "layout": {
+                "desc": "Different layout options for metric cards",
+                "code": "<das-metric-card title=\"CPU Usage\" value=\"75\" suffix=\"%\" layout=\"horizontal\" />"
+              },
+              "custom": {
+                "desc": "Custom content with slots and styling",
+                "code": "<das-metric-card title=\"Custom\" value=\"100\" type=\"success\">\n  <template #image><Icon /></template>\n</das-metric-card>"
+              }
+            },
+            "props": {
+              "title": "string - Card title",
+              "value": "string|number - Metric value",
+              "prefix": "string - Value prefix",
+              "suffix": "string - Value suffix",
+              "description": "string - Description text",
+              "size": "'small'|'medium'|'large' - Card size, default medium",
+              "type": "'default'|'primary'|'success'|'warning'|'danger'|'info' - Card type, default default",
+              "bordered": "boolean - Show border, default true",
+              "valueColor": "string - Custom value color",
+              "layout": "'vertical'|'horizontal' - Layout direction, default vertical",
+              "align": "'left'|'center'|'right'|'between' - Content alignment, default left",
+              "wrapperStyle": "object - Container styles",
+              "footer": "boolean - Show footer, default false",
+              "num": "number - Progress value (with footer)",
+              "total": "number - Total value (with footer)"
+            },
+            "slots": {
+              "title": "Custom title content",
+              "prefix": "Custom prefix content",
+              "default": "Custom value content",
+              "suffix": "Custom suffix content",
+              "description": "Custom description content",
+              "image": "Custom image/icon content",
+              "footer": "Custom footer content"
+            },
+            "tips": [
+              "Use for numerical data display with clear visual hierarchy",
+              "Choose appropriate type and color based on data importance",
+              "Vertical layout for more information, horizontal for compact display",
+              "Set footer, num, and total for progress bar functionality",
+              "Customize with slots for flexible content presentation"
+            ]
+          },
+          "das-modal": {
+            "purpose": "Modal dialog component for important information display and user interactions",
+            "usage": "Confirmations, alerts, forms, and important information display",
+            "demo": {
+              "basic": {
+                "desc": "Basic modal with title and content",
+                "code": "<das-modal v-model=\"visible\" title=\"Basic Modal\">\n  <p>Modal content here</p>\n</das-modal>"
+              },
+              "types": {
+                "desc": "Different modal types with status icons",
+                "code": "<das-modal v-model=\"visible\" title=\"Warning\" type=\"warning\">\n  <p>Are you sure you want to delete?</p>\n</das-modal>"
+              },
+              "custom": {
+                "desc": "Custom footer and content",
+                "code": "<das-modal v-model=\"visible\" title=\"Custom Modal\">\n  <template #footer>\n    <a-button @click=\"visible = false\">Cancel</a-button>\n    <a-button type=\"primary\">Confirm</a-button>\n  </template>\n</das-modal>"
+              }
+            },
+            "props": {
+              "modelValue": "boolean - Modal visibility, default false",
+              "title": "string - Modal title",
+              "type": "'default'|'info'|'success'|'warning'|'error' - Status type, default default",
+              "cancelText": "string - Cancel button text, default '取消'",
+              "confirmText": "string - Confirm button text, default '确定'",
+              "showDividers": "boolean - Show dividers, default true",
+              "showCloseIcon": "boolean - Show close button, default true",
+              "width": "string|number - Modal width, default '520px'",
+              "centered": "boolean - Center vertically, default false",
+              "maskClosable": "boolean - Close on mask click, default true"
+            },
+            "events": {
+              "confirm": "() => void - Confirm button click",
+              "cancel": "() => void - Cancel button click",
+              "close": "() => void - Modal close"
+            },
+            "slots": {
+              "default": "Modal content",
+              "title": "Custom title content",
+              "footer": "Custom footer content"
+            },
+            "tips": [
+              "Use for important information and user interactions",
+              "Keep content concise and avoid complex nested content",
+              "Use appropriate type for different scenarios (warning for deletions)",
+              "Ensure responsive design across different screen sizes",
+              "Consider form reset when closing modal with forms"
+            ]
+          },
+          "das-popover": {
+            "purpose": "Popover component for displaying additional information and tooltips without interrupting user workflow",
+            "usage": "Quick information display, tooltips, confirmation dialogs, and contextual help",
+            "demo": {
+              "basic": {
+                "desc": "Basic popover with hover trigger",
+                "code": "<das-popover title=\"Hover Trigger\" content=\"Simple tooltip content\" placement=\"top\" trigger=\"hover\">\n  <a-button>Hover me</a-button>\n</das-popover>"
+              },
+              "click": {
+                "desc": "Click trigger with custom content",
+                "code": "<das-popover v-model=\"visible\" title=\"Click Trigger\" placement=\"top\" trigger=\"click\" :closeable=\"true\">\n  <template #content>\n    <p>Custom content area</p>\n  </template>\n  <a-button>Click me</a-button>\n</das-popover>"
+              },
+              "confirm": {
+                "desc": "Confirmation popover with action buttons",
+                "code": "<das-popover :confirm=\"true\" title=\"Confirm Action\" content=\"Are you sure?\" @confirm=\"handleConfirm\" @cancel=\"handleCancel\">\n  <a-button>Delete</a-button>\n</das-popover>"
+              }
+            },
+            "props": {
+              "modelValue": "boolean - Popover visibility, default false",
+              "title": "string - Popover title",
+              "content": "string - Display content",
+              "placement": "'top'|'top-start'|'top-end'|'bottom'|'bottom-start'|'bottom-end'|'left'|'left-start'|'left-end'|'right'|'right-start'|'right-end' - Popup position, default 'top'",
+              "trigger": "'hover'|'click' - Trigger method, default 'hover'",
+              "theme": "'light'|'dark' - Theme style, default 'light'",
+              "closeable": "boolean - Show close button, default false",
+              "autoClose": "boolean - Auto close on outside click, default true",
+              "confirm": "boolean - Show confirmation dialog, default false",
+              "okText": "string - Confirm button text, default '确定'",
+              "cancelText": "string - Cancel button text, default '取消'"
+            },
+            "events": {
+              "update:modelValue": "(value: boolean) => void - Visibility change",
+              "visibleChange": "(value: boolean) => void - Visibility state change",
+              "confirm": "() => void - Confirm button click",
+              "cancel": "() => void - Cancel button click"
+            },
+            "slots": {
+              "default": "Trigger element content",
+              "title": "Custom title content",
+              "content": "Custom content area",
+              "icon": "Custom icon"
+            },
+            "tips": [
+              "Use for valuable additional information, avoid obvious content",
+              "Keep content concise and avoid complex nested elements",
+              "Choose appropriate trigger: hover for info, click for actions",
+              "Ensure proper positioning across different screen sizes",
+              "Use confirmation mode for important operations",
+              "Maintain consistent theme with overall interface design",
+              "Consider max width/height for long content with scrolling if needed"
+            ]
+          },
+          "das-select": {
+            "purpose": "Select component for choosing single or multiple options from a dropdown list",
+            "usage": "Option selection, data filtering, form inputs, and categorized content selection",
+            "demo": {
+              "basic": {
+                "desc": "Basic select with search and clear functionality",
+                "code": "<das-select\n  v-model:value=\"value\"\n  placeholder=\"Please select\"\n  allow-clear\n  show-search\n  :options=\"options\"\n/>"
+              },
+              "multiple": {
+                "desc": "Multiple selection with custom icons",
+                "code": "<das-select\n  v-model:value=\"value\"\n  mode=\"multiple\"\n  placeholder=\"Select multiple\"\n  :options=\"options\"\n>\n  <template #icon=\"{ option }\">\n    <span>🔖</span>\n  </template>\n</das-select>"
+              },
+              "tree": {
+                "desc": "Tree select for hierarchical data",
+                "code": "<das-select\n  v-model:value=\"value\"\n  :is-tree=\"true\"\n  placeholder=\"Select from tree\"\n  :tree-data=\"treeData\"\n/>"
+              }
+            },
+            "props": {
+              "value": "string|string[]|number|number[] - Selected value(s)",
+              "placeholder": "string - Placeholder text",
+              "allowClear": "boolean - Show clear button, default false",
+              "showSearch": "boolean - Enable search in single mode, default false",
+              "isTree": "boolean - Tree select mode, default false",
+              "mode": "'multiple'|'tags' - Selection mode, default single",
+              "options": "Array<{value, label, disabled?, desc?}> - Options data, default []",
+              "treeData": "Array<{key, title, disabled?, children?}> - Tree data, default []",
+              "isDropdownSearch": "boolean - Show search in dropdown, default false",
+              "selectMaxCount": "number - Max selection count",
+              "quickSelect": "boolean - Show select all button, default false",
+              "virtual": "boolean - Enable virtual scrolling, default true",
+              "isDropdownResize": "boolean - Allow dropdown resize, default false",
+              "renderList": "boolean - Adaptive item rendering, default false",
+              "descVertical": "boolean - Vertical description layout, default false"
+            },
+            "events": {
+              "change": "(value, option) => void - Value change event",
+              "select": "(value, option) => void - Option selected",
+              "deselect": "(value, option) => void - Option deselected",
+              "search": "(value: string) => void - Search input change",
+              "popupScroll": "(e) => void - Dropdown scroll event"
+            },
+            "slots": {
+              "default": "Custom option content - { option }",
+              "icon": "Custom option icon - { option }",
+              "suffixIcon": "Custom suffix icon",
+              "removeIcon": "Custom remove icon for multiple mode",
+              "clearIcon": "Custom clear icon"
+            },
+            "tips": [
+              "Provide clear option labels to avoid user confusion",
+              "Enable virtual scrolling for large datasets to improve performance",
+              "Set reasonable max selection count in multiple mode",
+              "Keep tree hierarchy within 3-4 levels for better usability",
+              "Support fuzzy search to improve user efficiency",
+              "Use concise group titles for grouped options",
+              "Ensure disabled options have clear visual distinction",
+              "Set appropriate width based on option content length",
+              "Consider touch interaction for mobile usage",
+              "Provide confirmation for important selections"
+            ]
+          },
+          "das-simple-chart": {
+            "purpose": "Simple chart component based on ECharts for data visualization",
+            "usage": "Data presentation, statistical analysis, monitoring dashboards, and trend visualization",
+            "demo": {
+              "line": {
+                "desc": "Line chart for trend visualization",
+                "code": "<das-simple-chart :need-resize=\"true\" :option=\"lineChartOption\" width=\"100%\" height=\"300px\" />\n\nconst lineChartOption = {\n  tooltip: { trigger: 'axis' },\n  xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] },\n  yAxis: { type: 'value' },\n  series: [{ data: [820, 932, 901, 934, 1290, 1330, 1320], type: 'line', smooth: true }]\n};"
+              },
+              "bar": {
+                "desc": "Bar chart for data comparison",
+                "code": "<das-simple-chart :option=\"barChartOption\" width=\"100%\" height=\"300px\" />\n\nconst barChartOption = {\n  xAxis: { type: 'category', data: ['A', 'B', 'C', 'D'] },\n  yAxis: { type: 'value' },\n  series: [{ data: [120, 200, 150, 80], type: 'bar' }]\n};"
+              },
+              "pie": {
+                "desc": "Pie chart for proportion display",
+                "code": "<das-simple-chart :option=\"pieChartOption\" width=\"100%\" height=\"300px\" />\n\nconst pieChartOption = {\n  series: [{ type: 'pie', data: [{ value: 335, name: 'A' }, { value: 310, name: 'B' }] }]\n};"
+              }
+            },
+            "props": {
+              "option": "object - ECharts configuration object, default {}",
+              "needResize": "boolean - Auto resize on container change, default true",
+              "width": "string - Chart container width, default '100%'",
+              "height": "string - Chart container height, default '100%'"
+            },
+            "events": {
+              "chartReady": "(chart: EChartsInstance) => void - Chart initialization complete",
+              "chartClick": "(params: any) => void - Chart click event",
+              "chartResize": "() => void - Chart resize event"
+            },
+            "methods": {
+              "resize": "() => void - Manually resize chart",
+              "getChart": "() => EChartsInstance - Get ECharts instance",
+              "setOption": "(option: object, notMerge?: boolean) => void - Update chart configuration"
+            },
+            "tips": [
+              "Component is based on ECharts library",
+              "Follow ECharts configuration standards for option prop",
+              "Set explicit width and height to avoid display issues",
+              "Enable needResize for responsive layouts",
+              "Use data sampling for large datasets to improve performance",
+              "Maintain consistent colors and themes with overall design",
+              "Consider touch interaction for mobile usage",
+              "Extract complex configurations to separate files",
+              "Use setOption method instead of directly modifying option object",
+              "ECharts instance is automatically disposed on component destruction"
+            ]
+          },
+          "das-sql-tip-tree": {
+            "purpose": "Visual SQL query builder with AIQL syntax support for dynamic condition combination",
+            "usage": "Data query, condition filtering, report generation, and complex data screening scenarios",
+            "demo": {
+              "basic": {
+                "desc": "Basic SQL query builder with field configuration and syntax hints",
+                "code": "<das-sql-tip-tree\n  :all-field-list=\"allFieldList\"\n  :freq-used-field-list=\"freqUsedFieldList\"\n  :get-value-options-fn=\"getValueOptions\"\n  :get-tree-obj-by-sql-via-api-fn=\"getTreeObjBySqlViaApi\"\n  :aiql-guide=\"aiqlGuides\"\n  :is-history-show=\"true\"\n  @ai-trans-aiql=\"handleAiTransClick\"\n/>\n\nconst allFieldList = [{\n  id: '1821821109012938753',\n  value: 'eventType',\n  label: 'Event Type',\n  type: 'string',\n  desc: 'Event Type',\n  isCustom: true,\n  isLabel: true,\n  isCommon: true,\n  isQuery: true,\n  isAgg: true\n}];"
+              },
+              "aiql": {
+                "desc": "AIQL syntax guide configuration",
+                "code": "const aiqlGuides = [{\n  expression: 'AND',\n  tab: 'Basic Syntax',\n  desc: 'And operator',\n  example: 'srcAddress == \"192.168.1.101\" AND destAddress == \"192.168.1.102\"'\n}];"
+              }
+            },
+            "props": {
+              "allFieldList": "FieldListType[] - All available fields array, default []",
+              "freqUsedFieldList": "FieldListType[] - Frequently used fields array, default []",
+              "dynamicListObj": "object - Dynamic list data object, default {}",
+              "aiqlGuide": "AiqlGuideType[] - AIQL syntax guide data, default []",
+              "disabled": "boolean - Disable editing and syntax hints, default false",
+              "maxRulesCount": "number - Maximum condition count limit, default 100",
+              "maxGroupDepth": "number - Maximum group depth limit, default 5",
+              "isShowValue": "boolean - Show field value in display, default false",
+              "isShowAI": "boolean - Enable AI capabilities, default false",
+              "isAiqlShow": "boolean - Show syntax hints, default true",
+              "isHistoryShow": "boolean - Show history records, default false",
+              "isSupportValueFilter": "boolean - Support value search in field selection, default false",
+              "operatorsConfig": "object - Custom operator configuration, default false",
+              "getValueOptionsFn": "(arg: any) => Promise<[success: boolean, data?: any]> - Get field value options, required",
+              "getTreeObjBySqlViaApiFn": "(arg: any) => Promise<[success: boolean, data?: any]> - Expand tree mode function, required",
+              "getDynamiclistObjDataByEnId": "(arg: any) => Promise<[success: boolean, data?: any]> - Expression filter function"
+            },
+            "events": {
+              "ai-trans-aiql": "(value: any) => void - AI translation to AIQL event"
+            },
+            "types": {
+              "FieldListType": "Field data object with id, value, label, type, desc, isCustom, isLabel, isCommon, isQuery, isAgg, list properties",
+              "AiqlGuideType": "AIQL syntax guide object with expression, tab, desc, example properties"
+            },
+            "tips": [
+              "Component is based on AIQL syntax, ensure backend supports query syntax parsing",
+              "getValueOptionsFn and getTreeObjBySqlViaApiFn are required async functions",
+              "Field type should match actual data types: string, number, boolean, enum, array",
+              "Enum fields need to provide optional value list in list property",
+              "Set reasonable maxRulesCount and maxGroupDepth to avoid overly complex queries",
+              "AI features require proper configuration and validation",
+              "Optimize field and value search performance for large datasets",
+              "Component is adapted for dark mode with good visual experience",
+              "History records need backend storage for data persistence",
+              "Custom operator configuration should match business requirements and ensure syntax correctness"
+            ]
+          },
+          "das-table": {
+            "purpose": "Powerful data table component with advanced features for structured data display",
+            "usage": "Data lists, report display, data management, and structured information presentation",
+            "demo": {
+              "basic": {
+                "desc": "Basic table with selection, pagination, and column configuration",
+                "code": "<das-table\n  :columns=\"columns\"\n  :data-source=\"dataSource\"\n  :selection=\"true\"\n  :pagination=\"true\"\n  :loading=\"loading\"\n  @change=\"onChange\"\n  @columnChange=\"columnChange\"\n/>"
+              },
+              "custom": {
+                "desc": "Table with custom slots and advanced features",
+                "code": "<das-table :columns=\"columns\" :data-source=\"dataSource\">\n  <template #operate=\"{ selectedRowKeys, selectedRows }\">\n    <a-button>Batch Operation</a-button>\n  </template>\n  <template #bodyCell=\"{ column, record, index }\">\n    <span v-if=\"column.key === 'action'\">\n      <a-button>Edit</a-button>\n    </span>\n  </template>\n</das-table>"
+              }
+            },
+            "props": {
+              "loading": "boolean - Loading state, default false",
+              "selection": "boolean - Enable row selection, default true",
+              "columns": "ColumnType[] - Column configuration array",
+              "dataSource": "any[] - Data array",
+              "rowKey": "string|((record: any) => string) - Row key function, default 'id'",
+              "storageKey": "string - Column storage key for persistence",
+              "refreshIntervals": "array - Auto refresh intervals in minutes, default [5, 10, 20]",
+              "scroll": "{x: number, y: number} - Scroll configuration",
+              "pagination": "boolean - Show pagination, default true",
+              "pageSizeOptions": "string[] - Page size options, default ['10', '20', '50', '100']",
+              "current": "number - Current page, default 1",
+              "pageSize": "number - Page size, default 10",
+              "total": "number - Total records, default 0"
+            },
+            "events": {
+              "change": "(pagination: TablePaginationConfig, filters: any, sorter: any) => void - Table change event",
+              "expand": "(expanded: boolean, record: any) => void - Row expand/collapse event",
+              "columnChange": "(columns: ColumnType[]) => void - Column configuration change",
+              "expandedRowsChange": "(expandedRows: string[]) => void - Expanded rows change"
+            },
+            "slots": {
+              "operate": "Operation bar slot - { selectedRowKeys: string[], selectedRows: any[] }",
+              "shortcut": "Shortcut operation slot - { selectedRowKeys: string[], selectedRows: any[] }",
+              "headerCell": "Custom header cell - { column: ColumnType }",
+              "bodyCell": "Custom body cell - { column: ColumnType, record: any, index: number }",
+              "expand": "Custom expand row content - { record: any }"
+            },
+            "columnProps": {
+              "title": "string - Column header text",
+              "dataIndex": "string - Data field path",
+              "key": "string - Column unique identifier",
+              "width": "string|number - Column width",
+              "minWidth": "number - Minimum width for resizable columns",
+              "maxWidth": "number - Maximum width for resizable columns",
+              "resizable": "boolean - Allow column width adjustment",
+              "fixed": "boolean|'left'|'right' - Fixed column position, default false",
+              "disabled": "boolean - Disable column",
+              "sorter": "boolean|((a: any, b: any) => number) - Sort function",
+              "filters": "{ text: string, value: string }[] - Filter menu items",
+              "onFilter": "(value: string, record: any) => boolean - Filter function"
+            },
+            "tips": [
+              "Use <a-form-item> in #shortcut slot for automatic advanced filtering",
+              "a-form-item col property supports 1 or 2 columns only",
+              "Column ellipsis is enhanced with tooltip for better text truncation",
+              "refreshIntervals uses minutes as unit, default is immediate refresh",
+              "Sticky header/pagination depends on parent container CSS properties",
+              "Use storageKey to persist column configuration in local storage",
+              "resizable columns require number type width for proper dragging",
+              "Fixed columns need explicit width to avoid layout issues",
+              "Enable virtual scrolling or pagination for large datasets",
+              "Use bodyCell slot instead of modifying columns for custom cell content"
+            ]
+          },
+          "das-tabs": {
+            "purpose": "Tab component for displaying multiple content panels with navigation switching",
+            "usage": "Content categorization, navigation switching, and multi-panel content organization",
+            "demo": {
+              "basic": {
+                "desc": "Basic tabs with different styles and positions",
+                "code": "<das-tabs v-model=\"activeValue\" type=\"card\" tab-position=\"top\">\n  <das-tab-pane label=\"Tab 1\" name=\"1\">\n    <div>Content 1</div>\n  </das-tab-pane>\n  <das-tab-pane label=\"Tab 2\" name=\"2\">\n    <div>Content 2</div>\n  </das-tab-pane>\n</das-tabs>"
+              },
+              "editable": {
+                "desc": "Editable tabs with add/close functionality",
+                "code": "<das-tabs v-model=\"activeValue\" :editable=\"true\" @edit=\"handleEdit\">\n  <das-tab-pane label=\"Tab 1\" name=\"1\">Content 1</das-tab-pane>\n  <das-tab-pane label=\"Tab 2\" name=\"2\">Content 2</das-tab-pane>\n</das-tabs>"
+              }
+            },
+            "props": {
+              "modelValue": "string|number - Active tab identifier, supports v-model, default ''",
+              "type": "'card'|'margin-card'|'capsule'|'radius' - Tab style type",
+              "closable": "boolean - Allow closing tabs, default false",
+              "addable": "boolean - Allow adding new tabs, default false",
+              "editable": "boolean - Enable add/close functionality, default false",
+              "tabPosition": "'top'|'bottom'|'left'|'right' - Tab position, default 'top'",
+              "beforeLeave": "function - Before tab switch callback, return false to prevent",
+              "stretch": "boolean - Stretch tabs to fill container, default false",
+              "size": "'large'|'small' - Tab size, default 'large'"
+            },
+            "events": {
+              "update:modelValue": "(value: string|number) => void - Active tab change",
+              "tab-click": "(tabInfo: any) => void - Tab click event",
+              "edit": "(targetKey: string, action: 'add'|'remove') => void - Tab edit event"
+            },
+            "slots": {
+              "default": "Default slot for DasTabPane components"
+            },
+            "tabPaneProps": {
+              "label": "string - Tab title",
+              "name": "string - Tab unique identifier",
+              "disabled": "boolean - Disable tab, default false"
+            },
+            "tips": [
+              "Handle add/close logic properly when using editable, addable, closable properties",
+              "beforeLeave callback return value affects tab switching",
+              "Combine different type and size for diverse design needs",
+              "DasTabPane must be used as child of DasTabs",
+              "Tab name should be unique for identification",
+              "Handle tab add/remove logic and active tab switching in editable mode",
+              "Choose appropriate tab position: top is most common, left/right for vertical layout",
+              "Use style types consistently with overall interface design"
+            ]
+          },
+          "das-tag-list-view": {
+            "purpose": "Tag list component with tooltip display for space-constrained scenarios",
+            "usage": "Display multiple tags with truncated view and full list in tooltip when space is limited",
+            "demo": {
+              "basic": {
+                "desc": "Basic tag list with tooltip display",
+                "code": "<das-tag-list-view :data-source=\"tagAllData\" />\n\nconst tagAllData = [\n  { id: 1, tagName: 'Tag 1' },\n  { id: 2, tagName: 'Tag 2' },\n  { id: 3, tagName: 'Tag 3' },\n  { id: 4, tagName: 'Tag 4' }\n];"
+              },
+              "custom": {
+                "desc": "Custom configuration with placement and count display",
+                "code": "<das-tag-list-view\n  :data-source=\"tagAllData\"\n  :max=\"3\"\n  :show-last-count=\"true\"\n  placement=\"top\"\n  alter-text=\"No tags\"\n/>"
+              }
+            },
+            "props": {
+              "dataSource": "Array - Tag data source array, default []",
+              "placement": "'top'|'topLeft'|'topRight'|'bottom'|'bottomLeft'|'bottomRight'|'left'|'leftTop'|'leftBottom'|'right'|'rightTop'|'rightBottom' - Tooltip position, default 'topLeft'",
+              "max": "number - Maximum visible tags count, default 4",
+              "showLastCount": "boolean - Show remaining count instead of ellipsis, default false",
+              "alterText": "string - Placeholder text when no data, default '-'"
+            },
+            "dataStructure": {
+              "TagItem": "Object with required id (number|string) and tagName (string) properties"
+            },
+            "tips": [
+              "Each dataSource object must contain id and tagName properties",
+              "When tag count exceeds max, shows ellipsis or count indicator",
+              "showLastCount true shows remaining count, false shows ellipsis",
+              "placement supports 12 position options for different layouts",
+              "alterText sets placeholder text when no data is available",
+              "Component automatically handles tag truncation and tooltip display",
+              "Set reasonable max value to avoid layout issues with too many tags",
+              "Tooltip displays complete tag list for full information access"
+            ]
+          },
+          "das-text-ellipsis": {
+            "purpose": "Text ellipsis component for automatically truncating long text with ellipsis display",
+            "usage": "Display long text content in limited space with automatic truncation, multi-line support, and tooltip functionality",
+            "demo": {
+              "basic": {
+                "desc": "Basic text ellipsis with single line truncation",
+                "code": "<das-text-ellipsis text=\"This is a very long text that will be truncated and display ellipsis when it exceeds the container width\" />"
+              },
+              "multiline": {
+                "desc": "Multi-line text ellipsis with line count control",
+                "code": "<das-text-ellipsis\n  :text=\"longText\"\n  :visibleLine=\"2\"\n  :maxLine=\"3\"\n  :ellipsis=\"true\"\n  :tooltip=\"true\"\n  @onReflow=\"handleReflow\"\n/>"
+              },
+              "height": {
+                "desc": "Height-based truncation with precise height control",
+                "code": "<das-text-ellipsis\n  :text=\"longText\"\n  :visibleHeight=\"60\"\n  :maxHeight=\"80\"\n  :ellipsis=\"true\"\n  :tooltip=\"true\"\n/>"
+              },
+              "custom": {
+                "desc": "Custom ellipsis node and link tag",
+                "code": "<das-text-ellipsis\n  :text=\"longText\"\n  tag=\"a\"\n  :tooltip=\"true\"\n>\n  <template #ellipsisNode>\n    <span style=\"color: blue;\">...更多</span>\n  </template>\n</das-text-ellipsis>"
+              }
+            },
+            "props": {
+              "text": "string - Text content to display, required",
+              "visibleLine": "number - Number of visible lines, default 1",
+              "visibleHeight": "number - Visible height in pixels, priority over visibleLine",
+              "maxLine": "number - Maximum line count, visibleLine cannot exceed this",
+              "maxHeight": "number - Maximum height in pixels, visibleHeight cannot exceed this",
+              "ellipsis": "boolean - Enable text truncation, default true",
+              "tooltip": "boolean - Show tooltip when truncated, default true",
+              "tag": "'a'|'span' - Text display tag, default 'span'",
+              "reflowOnResize": "boolean - Responsive text reflow on container resize, default true"
+            },
+            "events": {
+              "onReflow": "(ellipsis: boolean, result: string) => void - Text reflow completion event",
+              "onEllipsisClick": "() => void - Ellipsis click event"
+            },
+            "slots": {
+              "ellipsisNode": "Custom ellipsis content slot"
+            },
+            "tips": [
+              "visibleLine cannot exceed maxLine to avoid display issues",
+              "visibleHeight cannot exceed maxHeight, set reasonable height parameters",
+              "Height truncation has priority over line truncation when both are set",
+              "Tag property only supports 'a' and 'span' tags to avoid rendering errors",
+              "Container resize automatically recalculates text truncation for responsive effects",
+              "English text intelligently recognizes word boundaries to avoid word truncation",
+              "Ellipsis automatically displays when truncated, customizable via ellipsisNode slot",
+              "Tooltip only shows when text is truncated, not when text fits completely",
+              "onReflow event triggers on each text reflow for truncation state monitoring",
+              "Component supports responsive layout with automatic adjustment based on container size"
+            ]
+          },
+          "das-tool-tip": {
+            "purpose": "Lightweight tooltip component for providing additional information on hover",
+            "usage": "Display brief text information when users hover over elements like buttons, icons, labels, or links",
+            "demo": {
+              "basic": {
+                "desc": "Basic tooltip with default placement and theme",
+                "code": "<das-tool-tip>\n  <template #title>\n    <span>This is a tooltip text</span>\n  </template>\n  <a-button>Hover me</a-button>\n</das-tool-tip>"
+              },
+              "placement": {
+                "desc": "Different placement positions for tooltip",
+                "code": "<das-tool-tip placement=\"top\">\n  <template #title>Top tooltip</template>\n  <a-button>Top</a-button>\n</das-tool-tip>\n<das-tool-tip placement=\"bottom\">\n  <template #title>Bottom tooltip</template>\n  <a-button>Bottom</a-button>\n</das-tool-tip>"
+              },
+              "theme": {
+                "desc": "Different theme styles for tooltip",
+                "code": "<das-tool-tip theme=\"light\">\n  <template #title>Light theme</template>\n  <a-button>Light</a-button>\n</das-tool-tip>\n<das-tool-tip theme=\"warning\">\n  <template #title>Warning theme</template>\n  <a-button>Warning</a-button>\n</das-tool-tip>"
+              },
+              "custom": {
+                "desc": "Custom tooltip with arrow and delay settings",
+                "code": "<das-tool-tip\n  :show-arrow=\"true\"\n  :arrow-point-at-center=\"true\"\n  :delay=\"500\"\n  custom-class=\"my-tooltip\"\n>\n  <template #title>Custom tooltip</template>\n  <a-button>Custom</a-button>\n</das-tool-tip>"
+              }
+            },
+            "props": {
+              "placement": "'top'|'topLeft'|'topRight'|'bottom'|'bottomLeft'|'bottomRight'|'left'|'leftTop'|'leftBottom'|'right'|'rightTop'|'rightBottom' - Tooltip position, default 'top'",
+              "theme": "'default'|'light'|'warning'|'danger'|'success' - Theme style, default 'default'",
+              "delay": "number - Delay time in milliseconds, default 300",
+              "showArrow": "boolean - Show arrow indicator, default true",
+              "arrowPointAtCenter": "boolean - Arrow points to element center, default false",
+              "customClass": "string - Custom CSS class, default 'das-tooltip'",
+              "title": "string - Tooltip text content (can be customized via title slot)"
+            },
+            "slots": {
+              "default": "Trigger element that shows tooltip on hover",
+              "title": "Tooltip content slot"
+            },
+            "tips": [
+              "Choose appropriate placement to avoid covering important content",
+              "Don't use tooltips for critical information as they are hidden by default",
+              "Avoid interactive elements (buttons or links) in tooltips, use popover component instead",
+              "Keep text concise and clear, avoid long text that causes line breaks",
+              "Set reasonable maximum width, recommended not exceeding 480px",
+              "Don't make tooltips too hidden, provide clues for users to expect hints",
+              "For labels that need explanation, consider placing an info icon nearby",
+              "Suitable for showing button icon names, providing context, displaying truncated text",
+              "Set reasonable delay time to avoid affecting user experience",
+              "Ensure accurate arrow pointing, choose between edge or center as needed"
+            ]
+          }
+        }
+      }
+    ]
+  }
+]

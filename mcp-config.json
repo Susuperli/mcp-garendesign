@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "garencode-design-dev": {
+      "command": "/bin/zsh",
+      "args": [
+        "-c",
+        "cd /Users/liuyuwang/Desktop/GARENMCP/garenmcp && npm run mcp:dev"
+      ]
+    }
+  }
+}

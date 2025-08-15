@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/core/*": ["src/core/*"],
+      "@/shared/*": ["src/shared/*"],
+      "@/tools/*": ["src/tools/*"],
+      "@/types/*": ["src/types/*"],
+      "@/resources/*": ["src/resources/*"],
+      "@/lib/*": ["lib/*"],
+      "@/data/*": ["data/*"]
+    }
+  },
+  "include": ["src/**/*", "lib/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
