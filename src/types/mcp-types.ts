@@ -34,7 +34,11 @@ export interface ComponentDesign {
   componentDescription: string;
   library: Array<{
     name: string;
-    components: string[];
+    components: Array<{
+      name: string;
+      info: any;
+      isPrivate: boolean;
+    }>;
     description: string;
   }>;
   // Optional: props list returned when designing blocks

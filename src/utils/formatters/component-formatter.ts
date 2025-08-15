@@ -26,7 +26,30 @@ export function formatBlockDesignResult(
     sections.push(`**📚 组件库推荐:**`);
     design.library.forEach((lib, index) => {
       sections.push(`${index + 1}. **${lib.name}**`);
-      sections.push(`   - 组件: \`${lib.components.join('`, `')}\``);
+
+      // 处理新的组件格式
+      const componentNames = lib.components.map((comp) => {
+        if (typeof comp === 'string') {
+          // 兼容旧格式
+          return comp;
+        } else {
+          // 新格式：显示组件名称和详细信息
+          const componentName = comp.name;
+          const isPrivate = comp.isPrivate;
+          const info = comp.info;
+
+          let displayName = componentName;
+          if (isPrivate && info) {
+            // 如果是私有组件且有详细信息，显示更多信息
+            const purpose = info.purpose || '';
+            displayName = `${componentName}${purpose ? ` (${purpose})` : ''}`;
+          }
+
+          return displayName;
+        }
+      });
+
+      sections.push(`   - 组件: \`${componentNames.join('`, `')}\``);
       sections.push(`   - 描述: ${lib.description}`);
       sections.push(``);
     });

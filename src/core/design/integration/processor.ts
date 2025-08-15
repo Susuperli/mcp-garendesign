@@ -256,9 +256,17 @@ export function integrateDesign(
 
     // Collect private components used
     component.library.forEach((lib) => {
-      lib.components.forEach((comp) => {
-        if (comp.startsWith('das-')) {
-          privateComponentsUsed.add(comp);
+      lib.components.forEach((comp: any) => {
+        if (typeof comp === 'string') {
+          // 兼容旧格式
+          if (comp.startsWith('das-')) {
+            privateComponentsUsed.add(comp);
+          }
+        } else {
+          // 新格式：检查是否为私有组件
+          if (comp.isPrivate) {
+            privateComponentsUsed.add(comp.name);
+          }
         }
       });
     });
@@ -310,7 +318,15 @@ function generateCompositionPlan(
       if (blockDesign.component.library.length > 0) {
         sections.push('- **使用的组件库**:');
         blockDesign.component.library.forEach((lib) => {
-          sections.push(`  - ${lib.name}: ${lib.components.join(', ')}`);
+          // 处理新的组件格式
+          const componentNames = lib.components.map((comp) => {
+            if (typeof comp === 'string') {
+              return comp;
+            } else {
+              return comp.name;
+            }
+          });
+          sections.push(`  - ${lib.name}: ${componentNames.join(', ')}`);
         });
       }
     }
