@@ -22,61 +22,46 @@ export function getPrivateComponentDocs(rules: CodegenRule[]) {
 export function getPrivateDocsDescription(rules: CodegenRule[]): string {
   const docs = getPrivateComponentDocs(rules);
 
-  const isPrivateLibraryValid = (
-    docs: Record<string, any> | undefined
-  ): boolean => {
-    return !!docs && Object.keys(docs).length > 0;
-  };
-
-  const hasPrivateLibrary = isPrivateLibraryValid(docs);
-
-  // when there is no valid private component library, return empty string
-  if (!hasPrivateLibrary) {
-    return '';
-  }
-
   // Process private component library
   const templates: string[] = [];
 
-  if (hasPrivateLibrary) {
-    let componentDescriptions = '';
-    for (const key in docs) {
-      if (docs.hasOwnProperty(key)) {
-        const component = docs[key];
+  let componentDescriptions = '';
+  for (const key in docs) {
+    if (docs.hasOwnProperty(key)) {
+      const component = docs[key];
 
-        // Only build description for purpose and usage
-        let description = '';
+      // Only build description for purpose and usage
+      let description = '';
 
-        if (component.purpose) {
-          description += component.purpose;
-        }
+      if (component.purpose) {
+        description += component.purpose;
+      }
 
-        if (component.usage) {
-          if (description) description += ' ';
-          description += Array.isArray(component.usage)
-            ? component.usage.join(', ')
-            : component.usage;
-        }
+      if (component.usage) {
+        if (description) description += ' ';
+        description += Array.isArray(component.usage)
+          ? component.usage.join(', ')
+          : component.usage;
+      }
 
-        if (!description) {
-          continue;
-        }
+      if (!description) {
+        continue;
+      }
 
-        componentDescriptions += `
+      componentDescriptions += `
   ${key}: ${description}
   `;
-      }
     }
+  }
 
-    if (componentDescriptions.trim()) {
-      const template = `
+  if (componentDescriptions.trim()) {
+    const template = `
   - Component Library - The following components are available for use:
   ---------------------
   ${componentDescriptions.trim()}
   ---------------------
   `;
-      templates.push(template.trim());
-    }
+    templates.push(template.trim());
   }
 
   const result = templates.join('\n\n');

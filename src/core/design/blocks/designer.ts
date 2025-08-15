@@ -49,11 +49,25 @@ export function buildSmartBlockDesignPrompt(
 ${componentsDescription || 'No specific component library available, but you can use any appropriate components from your knowledge.'}
 
 ## Design Requirements
-1. Focus on the specific functionality of this block
-2. Consider the block's business domain and interaction patterns
-3. Leverage existing component capabilities when possible
-4. Ensure consistency with the overall design strategy
-5. Design for reusability and maintainability
+1. **优先使用私有组件库**：仔细分析可用的私有组件，优先使用现有组件完成功能
+2. **充分了解组件能力**：学习每个私有组件的用途、使用场景和API，确保正确使用
+3. **优先使用复合组件**：如果一个私有组件已经包含多个相关功能，应该作为一个整体使用，避免不必要的拆分
+4. **组件组合设计**：通过组合多个私有组件来实现复杂功能，而不是重新造轮子
+5. **考虑业务场景**：根据业务需求选择最合适的私有组件
+
+## 私有组件学习指南
+请仔细阅读上述组件库描述，了解每个组件的：
+- **用途**：组件的主要功能和适用场景
+- **使用方式**：如何正确使用该组件
+- **API接口**：组件提供的属性和事件
+- **限制条件**：组件的使用限制和注意事项
+
+## 设计策略
+1. **分析需求**：首先分析当前块的具体功能需求
+2. **匹配组件**：在私有组件库中寻找最匹配的组件，优先考虑复合组件
+3. **组合设计**：如果单个组件无法满足需求，考虑组合多个组件
+4. **验证可行性**：确保选择的组件能够实现所需功能
+5. **优化方案**：选择最优的组件组合方案
 
 ## Output Format
 Respond with a structured component design in the following format:
@@ -73,8 +87,14 @@ interface ComponentProps {
 
 ### Component Library Recommendations
 - **Library Name**: [Library name]
-  - **Components**: [Component names]
-  - **Usage**: [How to use these components]
+  - **Components**: [Component names from private library, separated by commas]
+  - **Usage**: [Detailed explanation of how these components work together to achieve the required functionality]
+
+**Important**: 
+- Only recommend components that are actually available in the private component library
+- Explain how the selected components work together to fulfill the block's requirements
+- If multiple components are needed, explain their roles and interactions
+- Consider the component's API and usage patterns when making recommendations
 
 ### Implementation Notes
 - [Key implementation considerations]
@@ -84,11 +104,13 @@ interface ComponentProps {
 
   const workflowSteps = `
 ## Design Workflow
-1. Analyze the block's specific requirements and context
-2. Identify the most suitable components from available libraries
-3. Design the component interface and structure
-4. Consider integration with other blocks and data flow
-5. Ensure the design aligns with the overall strategy
+1. **深入学习私有组件库**：仔细阅读并理解每个私有组件的功能、API和使用场景
+2. **分析块的具体需求**：明确当前块需要实现的具体功能和交互要求
+3. **匹配最佳组件**：在私有组件库中寻找最匹配的组件，优先考虑复合组件
+4. **设计组件组合**：如果单个组件无法满足需求，设计多个组件的组合方案
+5. **验证设计可行性**：确保选择的组件组合能够实现所有需求
+6. **考虑集成和扩展**：设计时要考虑与其他块的集成和数据流
+7. **优化和简化**：选择最简单、最有效的组件组合方案
 `;
 
   return `
@@ -167,8 +189,15 @@ export async function processSmartBlockDesign(
       response += part;
     }
 
+    // Get private components for validation
+    const privateComponents = getPrivateComponentDocs(rules);
+
     // Parse smart response into ComponentDesign
-    const componentDesign = parseSmartBlockResponse(response, blockId);
+    const componentDesign = parseSmartBlockResponse(
+      response,
+      blockId,
+      privateComponents
+    );
 
     return componentDesign;
   } catch (error) {
@@ -182,7 +211,8 @@ export async function processSmartBlockDesign(
  */
 function parseSmartBlockResponse(
   response: string,
-  blockId: string
+  blockId: string,
+  privateComponents?: Record<string, any>
 ): ComponentDesign {
   // Extract component name
   const nameMatch = response.match(/### Component Name\s*\n([^\n]+)/);
@@ -211,7 +241,11 @@ function parseSmartBlockResponse(
   // Parse libraries
   const libraries: Array<{
     name: string;
-    components: string[];
+    components: Array<{
+      name: string;
+      info: any;
+      isPrivate: boolean;
+    }>;
     description: string;
   }> = [];
   if (librarySection) {
@@ -225,21 +259,35 @@ function parseSmartBlockResponse(
             /\*\*([^*]+)\*\*: ([^\n]+)\s*\n\s*\*\*Components\*\*: ([^\n]+)\s*\n\s*\*\*Usage\*\*: ([^\n]+)/
           ) || [];
         if (name && components) {
+          const componentNames = components.split(',').map((c) => c.trim());
+
+          // 获取私有组件的详细信息
+          const enrichedComponents = componentNames
+            .map((compName) => {
+              // 检查私有组件库中是否存在该组件
+              if (privateComponents && privateComponents[compName]) {
+                // 获取组件的详细信息
+                const componentInfo = privateComponents[compName];
+                return {
+                  name: compName,
+                  info: componentInfo,
+                  isPrivate: true,
+                };
+              }
+              // 如果不在私有组件库中，直接跳过
+              return null;
+            })
+            .filter((comp) => comp !== null); // 过滤掉 null 值
+
           libraries.push({
             name: name.trim(),
-            components: components.split(',').map((c) => c.trim()),
+            components: enrichedComponents,
             description: `${description || ''} ${usage || ''}`.trim(),
           });
         }
       });
     }
   }
-
-  // Extract implementation notes
-  const notesMatch = response.match(
-    /### Implementation Notes\s*\n([\s\S]*?)(?=###|$)/
-  );
-  const implementationNotes = notesMatch ? notesMatch[1].trim() : '';
 
   return {
     componentName,

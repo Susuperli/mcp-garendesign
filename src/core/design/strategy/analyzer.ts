@@ -7,6 +7,7 @@ import {
   getPrivateComponentDocs,
   getPrivateDocsDescription,
 } from '@/config/rule-processors.js';
+import { loadPrivateComponentCodegen } from '../config-loader.js';
 
 /**
  * Smart Design Strategy Processor
@@ -63,10 +64,29 @@ export async function analyzeRequirementsSmartly(
   request: ComponentDesignRequest
 ): Promise<SmartComponentAnalysis> {
   const { prompt, rules, aiModel } = request;
-  const privateComponents = getPrivateComponentDocs(rules);
-  const privateComponentsDesc = getPrivateDocsDescription(rules);
+
+  // 自动加载项目配置，如果用户没有提供 rules 或 rules 为空
+  let effectiveRules = rules;
+  if (!rules || rules.length === 0) {
+    try {
+      const { rules: projectRules } = loadPrivateComponentCodegen();
+      effectiveRules = projectRules;
+      console.log(
+        '[Analyzer] Loaded project rules, count:',
+        projectRules.length
+      );
+    } catch (error) {
+      console.warn('[Analyzer] Failed to load project rules:', error);
+      effectiveRules = [];
+    }
+  }
+
+  const privateComponents = getPrivateComponentDocs(effectiveRules);
+  const privateComponentsDesc = getPrivateDocsDescription(effectiveRules);
 
   const systemPrompt = `你是一个专业的前端架构师，专门负责智能组件划分和设计策略制定。
+
+**重要提醒**：在划分组件时，请仔细分析私有组件库中每个组件的完整功能能力。如果一个私有组件已经包含多个相关功能（如查询+列表+操作，或其他功能组合），应该优先使用这个复合组件，而不是将其功能拆分成多个独立的块。充分利用现有组件的完整能力，避免不必要的拆分。
 
 ## 核心原则
 
@@ -76,9 +96,9 @@ export async function analyzeRequirementsSmartly(
 - 考虑数据流和状态管理
 
 ### 2. 现有组件库感知
-- 分析现有私有组件的能力
-- 避免重复造轮子
-- 优先使用现有组件
+- **深入分析私有组件的复合能力**：仔细研究每个私有组件具备的完整功能集
+- **优先匹配复合组件**：优先选择能够覆盖多个功能需求的私有组件，而不是拆分成多个简单组件
+- **避免不必要的功能拆分**：如果私有组件已经包含多个相关功能，应该作为一个整体使用
 
 ### 3. 交互模式识别
 - 识别组件间的交互关系
@@ -107,9 +127,14 @@ export async function analyzeRequirementsSmartly(
 - **data-flow**: 数据流（如数据查询、过滤、排序）
 
 ### 现有组件匹配
-- 分析现有组件的能力范围
-- 计算匹配度分数（0-1）
-- 识别组件的优势和限制
+- **分析现有组件的完整能力范围**：包括查询、列表、操作、筛选等复合功能
+- **计算匹配度分数（0-1）**：考虑组件能够覆盖的需求比例
+- **识别组件的优势和限制**：了解组件的完整功能边界
+
+### 组件划分指导原则
+- **优先使用复合组件**：如果一个私有组件已经包含多个相关功能，应该作为一个整体使用
+- **避免功能重复拆分**：不要将已经集成在私有组件中的功能拆分成独立的块
+- **优化组件组合**：选择最少的组件数量来覆盖最多的功能需求
 
 ## 输出格式
 
