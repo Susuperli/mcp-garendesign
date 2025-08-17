@@ -167,9 +167,9 @@ Please determine the complexity level and provide detailed analysis.`;
 
   let lastError: Error | null = null;
 
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const modelName = aiModel || getRecommendedModel(ModelPurpose.ANALYSIS);
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const modelName = aiModel || getRecommendedModel(ModelPurpose.ANALYSIS);
       const model = getAIClientByModelName(modelName);
 
       const stream = await streamText({
@@ -196,11 +196,9 @@ Please determine the complexity level and provide detailed analysis.`;
           aiAnalysis: result.aiAnalysis || response,
         };
       } else {
-
       }
     } catch (error) {
       lastError = error as Error;
-
     }
   }
 
@@ -239,7 +237,6 @@ export async function analyzeRequirementComplexity(
     );
     return aiResult;
   } catch (error) {
-
     return analyzeRequirementComplexityByRules(prompt);
   }
 }

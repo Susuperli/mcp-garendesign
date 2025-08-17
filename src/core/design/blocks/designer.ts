@@ -224,11 +224,10 @@ export async function processSmartBlockDesign(
       privateComponents
     );
 
-    return componentDesign;
+        return componentDesign;
   } catch (error) {
     throw error;
   }
-}
 
 /**
  * Parse smart block response into ComponentDesign
