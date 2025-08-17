@@ -71,12 +71,7 @@ export async function analyzeRequirementsSmartly(
     try {
       const { rules: projectRules } = loadPrivateComponentCodegen();
       effectiveRules = projectRules;
-      console.log(
-        '[Analyzer] Loaded project rules, count:',
-        projectRules.length
-      );
     } catch (error) {
-      console.warn('[Analyzer] Failed to load project rules:', error);
       effectiveRules = [];
     }
   }
@@ -196,8 +191,8 @@ ${privateComponentsDesc || '无现有组件库信息'}
   const userPrompt = `请分析以下前端开发需求的智能组件划分策略：
 
 ${prompt
-  .filter((p) => p.type === 'text')
-  .map((p) => p.text)
+  .filter(p => p.type === 'text')
+  .map(p => p.text)
   .join('\n')}
 
 请从业务逻辑、交互模式、现有组件库匹配等角度进行深度分析。`;
@@ -244,8 +239,8 @@ function createFallbackAnalysis(
   privateComponents: any
 ): SmartComponentAnalysis {
   const textContent = prompt
-    .filter((p) => p.type === 'text')
-    .map((p) => p.text)
+    .filter(p => p.type === 'text')
+    .map(p => p.text)
     .join(' ')
     .toLowerCase();
 
@@ -271,7 +266,7 @@ function createFallbackAnalysis(
 
   const existingComponentMatches: ComponentMatch[] = [];
   if (privateComponents) {
-    Object.keys(privateComponents).forEach((componentName) => {
+    Object.keys(privateComponents).forEach(componentName => {
       const component = privateComponents[componentName];
       if (
         component.purpose &&

@@ -2,7 +2,6 @@ import {
   ComponentDesignRequest,
   DesignToolResult,
   ComponentDesign,
-  DesignBlock,
 } from '@/types/mcp-types.js';
 import {
   processSmartBlockDesign,
@@ -33,10 +32,7 @@ export async function designBlockTool(args: any): Promise<{ content: any[] }> {
     const request: ComponentDesignRequest = {
       prompt: args.prompt,
       rules: Array.isArray(args.rules) ? args.rules : [],
-      aiModel:
-        typeof args.aiModel === 'string'
-          ? args.aiModel
-          : getRecommendedModel(ModelPurpose.DESIGN),
+      aiModel: getRecommendedModel(ModelPurpose.DESIGN), // 使用内置的推荐模型
       component: args.component,
     };
 
