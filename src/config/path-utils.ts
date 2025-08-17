@@ -31,14 +31,12 @@ export function getCodegensPaths(): string[] {
  */
 export function loadCodegensFile(): any[] {
   const possiblePaths = getCodegensPaths();
-  let loadedPath: string | null = null;
 
   for (const path of possiblePaths) {
     try {
       if (existsSync(path)) {
         const fileContent = readFileSync(path, 'utf-8');
         const codegens = JSON.parse(fileContent);
-        loadedPath = path;
         console.log(`[PathUtils] Successfully loaded codegens from: ${path}`);
         return codegens;
       }

@@ -14,7 +14,7 @@ export interface CodegenRule {
   description: string;
   prompt?: string;
   dataSet?: string[];
-  docs?: Record<string, any>;
+  docs?: Record<string, unknown>;
 }
 
 // Component design related types
@@ -36,7 +36,7 @@ export interface ComponentDesign {
     name: string;
     components: Array<{
       name: string;
-      info: any;
+      info: unknown;
       isPrivate: boolean;
     }>;
     description: string;

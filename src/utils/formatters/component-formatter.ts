@@ -28,7 +28,7 @@ export function formatBlockDesignResult(
       sections.push(`${index + 1}. **${lib.name}**`);
 
       // 处理新的组件格式
-      const componentNames = lib.components.map((comp) => {
+      const componentNames = lib.components.map(comp => {
         if (typeof comp === 'string') {
           // 兼容旧格式
           return comp;
@@ -41,7 +41,7 @@ export function formatBlockDesignResult(
           let displayName = componentName;
           if (isPrivate && info) {
             // 如果是私有组件且有详细信息，显示更多信息
-            const purpose = info.purpose || '';
+            const purpose = (info as { purpose?: string }).purpose || '';
             displayName = `${componentName}${purpose ? ` (${purpose})` : ''}`;
           }
 
@@ -61,7 +61,7 @@ export function formatBlockDesignResult(
     sections.push(`| 属性名 | 类型 | 必需 | 默认值 | 描述 |`);
     sections.push(`|--------|------|------|--------|------|`);
 
-    design.props.forEach((prop) => {
+    design.props.forEach(prop => {
       const required = prop.required ? '是' : '否';
       const defaultValue = prop.default || '-';
       const description = prop.description || '-';

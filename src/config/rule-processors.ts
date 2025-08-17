@@ -10,7 +10,7 @@ import { CodegenRule } from '@/types/mcp-types.js';
  */
 export function getPrivateComponentDocs(rules: CodegenRule[]) {
   const privateComponentsRule = rules.find(
-    (rule) => rule.type === 'private-components'
+    rule => rule.type === 'private-components'
   );
   const docs = privateComponentsRule?.docs;
   return docs;
@@ -27,8 +27,11 @@ export function getPrivateDocsDescription(rules: CodegenRule[]): string {
 
   let componentDescriptions = '';
   for (const key in docs) {
-    if (docs.hasOwnProperty(key)) {
-      const component = docs[key];
+    if (Object.prototype.hasOwnProperty.call(docs, key)) {
+      const component = docs[key] as {
+        purpose?: string;
+        usage?: string | string[];
+      };
 
       // Only build description for purpose and usage
       let description = '';

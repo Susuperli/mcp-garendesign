@@ -3,9 +3,11 @@
  * 验证AI配置文件的完整性和有效性
  */
 
-import { loadAIProvidersConfig } from './ai-client-adapter.js';
-import { AIProvidersConfig, AIModelConfig } from './types.js';
-import { getAIClientByModelName } from './ai-client-adapter.js';
+import {
+  loadAIProvidersConfig,
+  getAIClientByModelName,
+} from './ai-client-adapter.js';
+import { AIModelConfig } from './types.js';
 
 export interface ConfigValidationResult {
   isValid: boolean;
@@ -100,9 +102,7 @@ export async function validateAIConfig(): Promise<ConfigValidationResult> {
 
     // 验证模型用途映射
     if (config.modelPurposes) {
-      for (const [modelName, purposes] of Object.entries(
-        config.modelPurposes
-      )) {
+      for (const [modelName] of Object.entries(config.modelPurposes)) {
         if (!result.availableModels.includes(modelName)) {
           result.warnings.push(
             `模型用途映射中的模型 ${modelName} 在配置中不可用`
@@ -168,7 +168,7 @@ export async function testAIConnection(modelName: string): Promise<{
     const startTime = Date.now();
 
     // 尝试创建AI客户端
-    const model = getAIClientByModelName(modelName);
+    getAIClientByModelName(modelName);
 
     const responseTime = Date.now() - startTime;
 
@@ -199,10 +199,10 @@ export function getConfigSummary(): {
   try {
     const config = loadAIProvidersConfig();
 
-    const providers = config.providers.map((provider) => ({
+    const providers = config.providers.map(provider => ({
       name: provider.provider,
       modelCount: provider.models.length,
-      models: provider.models.map((m) => m.model),
+      models: provider.models.map(m => m.model),
     }));
 
     return {

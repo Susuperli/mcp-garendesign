@@ -22,13 +22,7 @@ import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-import {
-  AIProvider,
-  AIModelConfig,
-  AIProviderConfig,
-  AIProvidersConfig,
-  ModelFeature,
-} from './types.js';
+import { AIProvider, AIModelConfig, AIProvidersConfig } from './types.js';
 
 // 配置缓存
 let configCache: AIProvidersConfig | null = null;
@@ -103,12 +97,12 @@ export function findModelConfig(
 ): AIModelConfig {
   const config = loadAIProvidersConfig();
 
-  const providerConfig = config.providers.find((p) => p.provider === provider);
+  const providerConfig = config.providers.find(p => p.provider === provider);
   if (!providerConfig) {
     throw new Error(`Provider "${provider}" not found`);
   }
 
-  const modelConfig = providerConfig.models.find((m) => m.model === modelName);
+  const modelConfig = providerConfig.models.find(m => m.model === modelName);
   if (!modelConfig) {
     throw new Error(
       `Model "${modelName}" not found for provider "${provider}"`
@@ -136,7 +130,7 @@ export function getAIClient(provider: AIProvider, modelName: string) {
         apiKey: modelConfig.apiKey,
       })(modelConfig.model);
 
-    case AIProvider.ANTHROPIC:
+    case AIProvider.ANTHROPIC: {
       // 检查是否是代理服务
       const isProxyService =
         modelConfig.baseURL &&
@@ -168,6 +162,7 @@ export function getAIClient(provider: AIProvider, modelName: string) {
           apiKey: modelConfig.apiKey,
         })(modelConfig.model);
       }
+    }
 
     case AIProvider.DEEPSEEK:
       return createDeepSeek({
@@ -195,9 +190,7 @@ export function getAIClientByModelName(modelName: string) {
 
   // Find model in all providers
   for (const providerConfig of config.providers) {
-    const modelConfig = providerConfig.models.find(
-      (m) => m.model === modelName
-    );
+    const modelConfig = providerConfig.models.find(m => m.model === modelName);
     if (modelConfig) {
       console.log(
         `[AI-Adapter] Found model ${modelName} in provider ${providerConfig.provider}`
