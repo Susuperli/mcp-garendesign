@@ -3,10 +3,9 @@ import {
   CodegenRule,
   ComponentDesign,
   ComponentDesignRequest,
-  DesignBlock,
+  IntegratedDesign,
   DesignStrategy,
 } from '@/types/mcp-types.js';
-import type { IntegratedDesign } from '@/types/mcp-types.js';
 import { getAIClientByModelName } from '@/config/ai-client-adapter.js';
 import { getRecommendedModel } from '@/config/model-manager.js';
 import { ModelPurpose } from '@/config/types.js';
@@ -93,12 +92,6 @@ export function buildAnalysisPrompt(rules: CodegenRule[]) {
     ## Workflow
     ${workflowSteps}
   `;
-
-  console.log(
-    '[DEBUG] buildAnalysisPrompt - Final prompt length:',
-    finalPrompt.length
-  );
-
   return finalPrompt;
 }
 
@@ -112,8 +105,8 @@ export function buildUserMessage(
     {
       role: 'user',
       content: prompt
-        .filter((p) => p.type === 'text')
-        .map((p) => p.text)
+        .filter(p => p.type === 'text')
+        .map(p => p.text)
         .join('\n'),
     },
   ];
@@ -128,7 +121,7 @@ export async function processComponentDesign(
 ): Promise<DesignStrategy> {
   try {
     // Automatically load project configuration
-    const { rules: projectRules, defaultModel } = loadPrivateComponentCodegen();
+    const { rules: projectRules } = loadPrivateComponentCodegen();
 
     console.log(
       '[DEBUG] processComponentDesign - projectRules length:',
@@ -255,7 +248,7 @@ export function integrateDesign(
     }
 
     // Collect private components used
-    component.library.forEach((lib) => {
+    component.library.forEach(lib => {
       lib.components.forEach((comp: any) => {
         if (typeof comp === 'string') {
           // 兼容旧格式
@@ -302,8 +295,8 @@ function generateCompositionPlan(
     '## 区块组成',
   ];
 
-  strategy.blocks.forEach((block) => {
-    const blockDesign = blockDesigns.find((bd) => bd.blockId === block.blockId);
+  strategy.blocks.forEach(block => {
+    const blockDesign = blockDesigns.find(bd => bd.blockId === block.blockId);
     sections.push(`### ${block.title}`);
     sections.push(`- **类型**: ${block.blockType}`);
     sections.push(`- **描述**: ${block.description}`);
@@ -317,9 +310,9 @@ function generateCompositionPlan(
 
       if (blockDesign.component.library.length > 0) {
         sections.push('- **使用的组件库**:');
-        blockDesign.component.library.forEach((lib) => {
+        blockDesign.component.library.forEach(lib => {
           // 处理新的组件格式
-          const componentNames = lib.components.map((comp) => {
+          const componentNames = lib.components.map(comp => {
             if (typeof comp === 'string') {
               return comp;
             } else {

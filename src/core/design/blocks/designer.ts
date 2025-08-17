@@ -12,6 +12,7 @@ import {
   getPrivateComponentDocs,
   getPrivateDocsDescription,
 } from '@/config/rule-processors.js';
+import { loadPrivateComponentCodegen } from '../config-loader.js';
 
 /**
  * Smart block design processor
@@ -28,7 +29,6 @@ export function buildSmartBlockDesignPrompt(
   integratedContext?: any
 ): string {
   const componentsDescription = getPrivateDocsDescription(rules);
-  const privateComponents = getPrivateComponentDocs(rules);
 
   const goal = `Design a specific component for the "${blockInfo.title}" block based on the smart design strategy.`;
 
@@ -46,7 +46,7 @@ export function buildSmartBlockDesignPrompt(
   const constraints = `
 ## Available Resources
 ### Component Library
-${componentsDescription || 'No specific component library available, but you can use any appropriate components from your knowledge.'}
+${componentsDescription || 'No specific component library available'}
 
 ## Design Requirements
 1. **优先使用私有组件库**：仔细分析可用的私有组件，优先使用现有组件完成功能
@@ -70,36 +70,49 @@ ${componentsDescription || 'No specific component library available, but you can
 5. **优化方案**：选择最优的组件组合方案
 
 ## Output Format
-Respond with a structured component design in the following format:
 
-### Component Name
-[Component name]
+请返回JSON格式的组件设计结果：
 
-### Component Description
-[Detailed description of the component's purpose and functionality]
-
-### Props Interface
-\`\`\`typescript
-interface ComponentProps {
-  // Define props here
+\`\`\`json
+{
+  "componentName": "组件名称",
+  "componentDescription": "组件的详细描述和功能说明",
+  "props": [
+    {
+      "name": "属性名",
+      "type": "属性类型",
+      "required": true,
+      "default": "默认值",
+      "description": "属性描述"
+    }
+  ],
+  "library": [
+    {
+      "name": "组件库名称",
+      "components": [
+        {
+          "name": "组件名称",
+          "purpose": "组件用途",
+          "usage": "使用场景",
+          "isPrivate": true
+        }
+      ],
+      "description": "组件组合使用说明"
+    }
+  ],
+  "implementationNotes": [
+    "关键实现考虑",
+    "集成要点",
+    "性能考虑"
+  ]
 }
 \`\`\`
 
-### Component Library Recommendations
-- **Library Name**: [Library name]
-  - **Components**: [Component names from private library, separated by commas]
-  - **Usage**: [Detailed explanation of how these components work together to achieve the required functionality]
-
-**Important**: 
-- Only recommend components that are actually available in the private component library
-- Explain how the selected components work together to fulfill the block's requirements
-- If multiple components are needed, explain their roles and interactions
-- Consider the component's API and usage patterns when making recommendations
-
-### Implementation Notes
-- [Key implementation considerations]
-- [Integration points]
-- [Performance considerations]
+**重要说明**：
+- 只推荐私有组件库中实际存在的组件
+- 详细说明选择的组件如何协同工作以满足块的需求
+- 如果需要多个组件，说明它们的角色和交互关系
+- 考虑组件的API和使用模式进行推荐
 `;
 
   const workflowSteps = `
@@ -140,7 +153,7 @@ export function buildSmartBlockUserMessage(
   return [
     {
       role: 'user',
-      content: prompt.map((p) => p.text).join('\n'),
+      content: prompt.map(p => p.text).join('\n'),
     },
   ];
 }
@@ -156,12 +169,24 @@ export async function processSmartBlockDesign(
 ): Promise<ComponentDesign> {
   try {
     const { rules, aiModel } = request;
+
+    // 自动加载项目配置，如果用户没有提供 rules 或 rules 为空
+    let effectiveRules = rules;
+    if (!rules || rules.length === 0) {
+      try {
+        const { rules: projectRules } = loadPrivateComponentCodegen();
+        effectiveRules = projectRules;
+      } catch (error) {
+        effectiveRules = [];
+      }
+    }
+
     const modelName = aiModel || getRecommendedModel(ModelPurpose.DESIGN);
     const model = getAIClientByModelName(modelName);
 
     // Build smart prompt
     const systemPrompt = buildSmartBlockDesignPrompt(
-      rules,
+      effectiveRules, // 使用有效的规则
       blockInfo || {
         blockId,
         title: 'Component Design',
@@ -190,7 +215,7 @@ export async function processSmartBlockDesign(
     }
 
     // Get private components for validation
-    const privateComponents = getPrivateComponentDocs(rules);
+    const privateComponents = getPrivateComponentDocs(effectiveRules); // 使用有效的规则
 
     // Parse smart response into ComponentDesign
     const componentDesign = parseSmartBlockResponse(
@@ -199,12 +224,10 @@ export async function processSmartBlockDesign(
       privateComponents
     );
 
-    return componentDesign;
+        return componentDesign;
   } catch (error) {
-    console.error('Smart block design error:', error);
     throw error;
   }
-}
 
 /**
  * Parse smart block response into ComponentDesign
@@ -214,84 +237,56 @@ function parseSmartBlockResponse(
   blockId: string,
   privateComponents?: Record<string, any>
 ): ComponentDesign {
-  // Extract component name
-  const nameMatch = response.match(/### Component Name\s*\n([^\n]+)/);
-  const componentName = nameMatch
-    ? nameMatch[1].trim()
-    : `${blockId}-component`;
+  // Try to extract JSON from the response
+  const jsonMatch = response.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      const result = JSON.parse(jsonMatch[0]);
 
-  // Extract component description
-  const descMatch = response.match(
-    /### Component Description\s*\n([\s\S]*?)(?=###|$)/
-  );
-  const componentDescription = descMatch
-    ? descMatch[1].trim()
-    : 'Component description';
+      // Validate and enrich components with private component info
+      const enrichedLibraries = (result.library || []).map((lib: any) => {
+        const enrichedComponents = (lib.components || []).map((comp: any) => {
+          // Check if component exists in private component library
+          if (privateComponents && privateComponents[comp.name]) {
+            const componentInfo = privateComponents[comp.name];
+            return {
+              name: comp.name,
+              info: componentInfo,
+              isPrivate: true,
+            };
+          }
+          // If not in private library, return as external component
+          return {
+            name: comp.name,
+            info: comp,
+            isPrivate: false,
+          };
+        });
 
-  // Extract props interface
-  const propsMatch = response.match(/```typescript\s*\n([\s\S]*?)\s*\n```/);
-  const propsInterface = propsMatch ? propsMatch[1].trim() : '';
-
-  // Extract library recommendations
-  const libraryMatch = response.match(
-    /### Component Library Recommendations\s*\n([\s\S]*?)(?=###|$)/
-  );
-  const librarySection = libraryMatch ? libraryMatch[1].trim() : '';
-
-  // Parse libraries
-  const libraries: Array<{
-    name: string;
-    components: Array<{
-      name: string;
-      info: any;
-      isPrivate: boolean;
-    }>;
-    description: string;
-  }> = [];
-  if (librarySection) {
-    const libMatches = librarySection.match(
-      /\*\*([^*]+)\*\*: ([^\n]+)\s*\n\s*\*\*Components\*\*: ([^\n]+)\s*\n\s*\*\*Usage\*\*: ([^\n]+)/g
-    );
-    if (libMatches) {
-      libMatches.forEach((match) => {
-        const [, name, description, components, usage] =
-          match.match(
-            /\*\*([^*]+)\*\*: ([^\n]+)\s*\n\s*\*\*Components\*\*: ([^\n]+)\s*\n\s*\*\*Usage\*\*: ([^\n]+)/
-          ) || [];
-        if (name && components) {
-          const componentNames = components.split(',').map((c) => c.trim());
-
-          // 获取私有组件的详细信息
-          const enrichedComponents = componentNames
-            .map((compName) => {
-              // 检查私有组件库中是否存在该组件
-              if (privateComponents && privateComponents[compName]) {
-                // 获取组件的详细信息
-                const componentInfo = privateComponents[compName];
-                return {
-                  name: compName,
-                  info: componentInfo,
-                  isPrivate: true,
-                };
-              }
-              // 如果不在私有组件库中，直接跳过
-              return null;
-            })
-            .filter((comp) => comp !== null); // 过滤掉 null 值
-
-          libraries.push({
-            name: name.trim(),
-            components: enrichedComponents,
-            description: `${description || ''} ${usage || ''}`.trim(),
-          });
-        }
+        return {
+          name: lib.name || 'Component Library',
+          components: enrichedComponents,
+          description: lib.description || '',
+        };
       });
+
+      return {
+        componentName: result.componentName || `${blockId}-component`,
+        componentDescription:
+          result.componentDescription || 'Component description',
+        library: enrichedLibraries,
+        props: result.props || [],
+      };
+    } catch (error) {
+      // JSON parsing failed, continue to fallback
     }
   }
 
+  // Fallback to default structure if JSON parsing fails
   return {
-    componentName,
-    componentDescription,
-    library: libraries,
+    componentName: `${blockId}-component`,
+    componentDescription: 'Component description',
+    library: [],
+    props: [],
   };
 }

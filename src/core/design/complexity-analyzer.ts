@@ -25,8 +25,8 @@ function analyzeRequirementComplexityByRules(
   prompt: ComponentDesignRequest['prompt']
 ): ComplexityAnalysisResult {
   const textContent = prompt
-    .filter((p) => p.type === 'text')
-    .map((p) => p.text)
+    .filter(p => p.type === 'text')
+    .map(p => p.text)
     .join(' ')
     .toLowerCase();
 
@@ -37,7 +37,7 @@ function analyzeRequirementComplexityByRules(
   const hasHeader = /头部|导航|header|nav/.test(textContent);
   const hasSidebar = /侧边栏|侧栏|sidebar/.test(textContent);
   const hasFooter = /底部|footer/.test(textContent);
-  const hasMultipleAreas = /多个区域|多个部分|多个模块/.test(textContent);
+
   const hasForm = /表单|form/.test(textContent);
   const hasCard = /卡片|card/.test(textContent);
   const hasTabs = /标签页|tabs|tab/.test(textContent);
@@ -159,8 +159,8 @@ Please respond with JSON format:
   const userPrompt = `Please analyze the complexity of the following front-end development requirements:
 
 ${prompt
-  .filter((p) => p.type === 'text')
-  .map((p) => p.text)
+  .filter(p => p.type === 'text')
+  .map(p => p.text)
   .join('\n')}
 
 Please determine the complexity level and provide detailed analysis.`;
@@ -169,7 +169,6 @@ Please determine the complexity level and provide detailed analysis.`;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`[AI] Attempt ${attempt} AI analysis...`);
       const modelName = aiModel || getRecommendedModel(ModelPurpose.ANALYSIS);
       const model = getAIClientByModelName(modelName);
 
@@ -188,7 +187,7 @@ Please determine the complexity level and provide detailed analysis.`;
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0]);
-        console.log(`[AI] Attempt ${attempt} successful, parsed JSON result`);
+
         return {
           complexity: result.complexity || 'medium',
           estimatedBlocks: result.estimatedBlocks || 2,
@@ -197,17 +196,9 @@ Please determine the complexity level and provide detailed analysis.`;
           aiAnalysis: result.aiAnalysis || response,
         };
       } else {
-        console.warn(
-          `[AI] Attempt ${attempt} failed: No valid JSON found in response`
-        );
-        console.log(`[AI] Preparing attempt ${attempt + 1}...`);
       }
     } catch (error) {
       lastError = error as Error;
-      console.warn(
-        `[AI] Attempt ${attempt} failed: ${error instanceof Error ? error.message : String(error)}`
-      );
-      console.log(`[AI] Preparing attempt ${attempt + 1}...`);
     }
   }
 
@@ -246,10 +237,6 @@ export async function analyzeRequirementComplexity(
     );
     return aiResult;
   } catch (error) {
-    console.warn(
-      '[Complexity] AI analysis failed, fallback to rule analysis:',
-      error
-    );
     return analyzeRequirementComplexityByRules(prompt);
   }
 }

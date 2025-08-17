@@ -5,7 +5,6 @@ import {
 } from '@/types/mcp-types.js';
 import {
   generateSmartDesignStrategy,
-  analyzeRequirementsSmartly,
   SmartComponentAnalysis,
 } from '@/core/design/index.js';
 import {
@@ -25,7 +24,6 @@ const DESIGN_BLOCK_TOOL = 'design_block';
 interface DesignComponentArgs {
   prompt: Prompt[];
   rules?: any[];
-  aiModel?: string;
   component?: {
     id: string;
     name: string;
@@ -71,7 +69,6 @@ export async function designComponentTool(args: any): Promise<ToolResponse> {
 
     return { content };
   } catch (error) {
-    console.error('Design component tool error:', error);
     return buildErrorResponse(error);
   }
 }
@@ -87,7 +84,6 @@ function validateAndNormalizeArgs(args: any): DesignComponentArgs {
   return {
     prompt: args.prompt,
     rules: Array.isArray(args.rules) ? args.rules : [],
-    aiModel: typeof args.aiModel === 'string' ? args.aiModel : DEFAULT_AI_MODEL,
     component: args.component,
   };
 }
@@ -99,7 +95,7 @@ function buildDesignRequest(args: DesignComponentArgs): ComponentDesignRequest {
   return {
     prompt: args.prompt,
     rules: args.rules || [],
-    aiModel: args.aiModel || DEFAULT_AI_MODEL,
+    aiModel: DEFAULT_AI_MODEL, // 使用内置的默认模型
     component: args.component,
   };
 }
@@ -167,7 +163,7 @@ function createComplexComponentAction(
   firstStep: any,
   blocks: any[]
 ): NextAction {
-  const firstBlock = blocks.find((b) => b.blockId === firstStep.blockId);
+  const firstBlock = blocks.find(b => b.blockId === firstStep.blockId);
 
   return {
     tool: DESIGN_BLOCK_TOOL,
