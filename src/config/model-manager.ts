@@ -4,12 +4,7 @@
  */
 
 import { loadAIProvidersConfig } from './ai-client-adapter.js';
-import {
-  ModelPurpose,
-  AvailableModel,
-  AIProvidersConfig,
-  AIModelConfig,
-} from './types.js';
+import { ModelPurpose, AIProvidersConfig, AIModelConfig } from './types.js';
 
 // 模型配置缓存
 let modelConfigCache: AIProvidersConfig | null = null;
@@ -35,8 +30,8 @@ export function getRecommendedModel(purpose: ModelPurpose): string {
     const recommendedModelName = config.defaultModels[purpose];
 
     // 检查推荐的模型是否在配置中存在
-    const modelExists = config.providers.some((provider) =>
-      provider.models.some((model) => model.model === recommendedModelName)
+    const modelExists = config.providers.some(provider =>
+      provider.models.some(model => model.model === recommendedModelName)
     );
 
     if (modelExists) {
@@ -49,8 +44,8 @@ export function getRecommendedModel(purpose: ModelPurpose): string {
     for (const [modelName, purposes] of Object.entries(config.modelPurposes)) {
       if (purposes.includes(purpose)) {
         // 检查模型是否在配置中存在
-        const modelExists = config.providers.some((provider) =>
-          provider.models.some((model) => model.model === modelName)
+        const modelExists = config.providers.some(provider =>
+          provider.models.some(model => model.model === modelName)
         );
 
         if (modelExists) {
@@ -113,8 +108,8 @@ export function getAvailableModels(): Array<{
  */
 export function validateModel(modelName: string): boolean {
   const config = getModelConfig();
-  return config.providers.some((provider) =>
-    provider.models.some((model) => model.model === modelName)
+  return config.providers.some(provider =>
+    provider.models.some(model => model.model === modelName)
   );
 }
 
@@ -125,7 +120,7 @@ export function getModelInfo(modelName: string): AIModelConfig | null {
   const config = getModelConfig();
 
   for (const provider of config.providers) {
-    const model = provider.models.find((m) => m.model === modelName);
+    const model = provider.models.find(m => m.model === modelName);
     if (model) {
       return model;
     }
@@ -141,7 +136,7 @@ export function getProviderByModel(modelName: string): string | null {
   const config = getModelConfig();
 
   for (const provider of config.providers) {
-    const model = provider.models.find((m) => m.model === modelName);
+    const model = provider.models.find(m => m.model === modelName);
     if (model) {
       return provider.provider;
     }
